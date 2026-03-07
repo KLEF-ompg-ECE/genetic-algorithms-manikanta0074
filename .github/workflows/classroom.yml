@@ -28,25 +28,45 @@ jobs:
       - name: Install dependencies
         run: python -m pip install pytest matplotlib --quiet
 
-      - name: Run Section A - Code runs (25 pts)
+      - name: Section A
         id: section-a
-        run: python -m pytest tests/test_assignment2.py::TestCodeRuns -v
-        continue-on-error: true
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Section A - Code runs
+          setup-command: python -m pip install pytest matplotlib --quiet
+          command: python -m pytest tests/test_assignment2.py::TestCodeRuns -v
+          timeout: 120
+          max-score: 25
 
-      - name: Run Section B - Plot files (25 pts)
+      - name: Section B
         id: section-b
-        run: python -m pytest tests/test_assignment2.py::TestPlotsExist -v
-        continue-on-error: true
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Section B - Plot files
+          setup-command: ""
+          command: python -m pytest tests/test_assignment2.py::TestPlotsExist -v
+          timeout: 30
+          max-score: 25
 
-      - name: Run Section C - README filled (35 pts)
+      - name: Section C
         id: section-c
-        run: python -m pytest tests/test_assignment2.py::TestREADME -v
-        continue-on-error: true
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Section C - README filled
+          setup-command: ""
+          command: python -m pytest tests/test_assignment2.py::TestREADME -v
+          timeout: 30
+          max-score: 35
 
-      - name: Run Section D - Code modified (15 pts)
+      - name: Section D
         id: section-d
-        run: python -m pytest tests/test_assignment2.py::TestCodeModified -v
-        continue-on-error: true
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: Section D - Code modified
+          setup-command: ""
+          command: python -m pytest tests/test_assignment2.py::TestCodeModified -v
+          timeout: 30
+          max-score: 15
 
       - name: Autograding Reporter
         uses: classroom-resources/autograding-grading-reporter@v1
