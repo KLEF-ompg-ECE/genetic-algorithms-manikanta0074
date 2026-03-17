@@ -1,0 +1,60 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Section A - Code runs
+      id: section-a-code-runs
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Section A - Code runs
+        setup-command: pip install pytest matplotlib
+        command: python -m pytest tests/test_assignment2.py::TestCodeRuns -v
+        timeout: 10
+        max-score: 25
+    - name: Section B - Plot files
+      id: section-b-plot-files
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Section B - Plot files
+        setup-command: pip install pytest matplotlib
+        command: python -m pytest tests/test_assignment2.py::TestPlotsExist -v
+        timeout: 10
+        max-score: 25
+    - name: Section C - README filled
+      id: section-c-readme-filled
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Section C - README filled
+        setup-command: pip install pytest matplotlib
+        command: python -m pytest tests/test_assignment2.py::TestREADME -v
+        timeout: 10
+        max-score: 35
+    - name: Section D - Code modified
+      id: section-d-code-modified
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: Section D - Code modified
+        setup-command: pip install pytest matplotlib
+        command: python -m pytest tests/test_assignment2.py::TestCodeModified -v
+        timeout: 10
+        max-score: 15
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        SECTION-A-CODE-RUNS_RESULTS: "${{steps.section-a-code-runs.outputs.result}}"
+        SECTION-B-PLOT-FILES_RESULTS: "${{steps.section-b-plot-files.outputs.result}}"
+        SECTION-C-README-FILLED_RESULTS: "${{steps.section-c-readme-filled.outputs.result}}"
+        SECTION-D-CODE-MODIFIED_RESULTS: "${{steps.section-d-code-modified.outputs.result}}"
+      with:
+        runners: section-a-code-runs,section-b-plot-files,section-c-readme-filled,section-d-code-modified
