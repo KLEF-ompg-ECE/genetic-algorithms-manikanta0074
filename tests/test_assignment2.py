@@ -9,7 +9,7 @@ Section D — Code was modified           (15 pts)
 """
 
 import subprocess, sys, os, re
-import pytest
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

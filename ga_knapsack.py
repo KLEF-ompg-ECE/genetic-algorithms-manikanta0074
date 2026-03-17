@@ -207,11 +207,41 @@ def save_plot(value_log, filename, title):
     print(f"  Saved -> {filename}")
 
 
+def save_combined_plot(logs_dict):
+    """
+    Save a single figure with all 4 experiment curves overlaid.
+    logs_dict : { label_str : value_log_list }
+    """
+    os.makedirs("plots", exist_ok=True)
+    colors = {
+        "Baseline (0.05)":       "seagreen",
+        "Exp 2a - rate=0.01":    "steelblue",
+        "Exp 2b - rate=0.05":    "darkorange",
+        "Exp 2c - rate=0.30":    "crimson",
+    }
+    plt.figure(figsize=(10, 5))
+    for label, log in logs_dict.items():
+        plt.plot(log, label=label, linewidth=2,
+                 color=colors.get(label, None), marker="o", markersize=3)
+    plt.xlabel("Generation")
+    plt.ylabel("Best Value")
+    plt.title("GA Convergence — All Experiments")
+    plt.legend(loc="lower right")
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    path = "plots/all_experiments.png"
+    plt.savefig(path, dpi=150)
+    plt.close()
+    print(f"  Saved -> {path}")
+
+
 # =============================================================================
 # RUN YOUR EXPERIMENTS HERE
 # =============================================================================
 
 if __name__ == "__main__":
+
+    all_logs = {}   # collect logs for the combined plot
 
     # ==========================================================================
     # EXPERIMENT 1 - Baseline
@@ -232,21 +262,38 @@ if __name__ == "__main__":
     print(f"  Final best value: {best_val}")
     save_plot(val_log, "plots/experiment_1.png",
               "Baseline  mutation_rate=0.05")
+    all_logs["Baseline (0.05)"] = val_log
 
     # ==========================================================================
-    # EXPERIMENT 2 - Effect of Mutation Rate
-    # TODO: Copy this block THREE times below (for 0.01, 0.05, and 0.30).
-    #       Change mutation_rate and the plot filename each time.
-    #       Record results in README.md.
+    # EXPERIMENT 2 - Vary mutation_rate
+    # Three sub-runs: 0.01 | 0.05 | 0.30
     # ==========================================================================
 
-    # --- Copy and edit below this line ---
+    exp2_configs = [
+        ("2a", 0.01, "plots/experiment_2a.png", "Exp 2a - rate=0.01"),
+        ("2b", 0.05, "plots/experiment_2b.png", "Exp 2b - rate=0.05"),
+        ("2c", 0.30, "plots/experiment_2c.png", "Exp 2c - rate=0.30"),
+    ]
 
-    # chr2, val2, vl2 = run_ga(
-    #     population_size=20, generations=50,
-    #     crossover_rate=0.8, mutation_rate=0.01,    # <- change this
-    #     tournament_size=3, seed=42
-    # )
-    # print_solution(chr2)
-    # print(f"  Final best value: {val2}")
-    # save_plot(vl2, "plots/experiment_2a.png", "mutation_rate=0.01")   # <- change filename
+    for tag, rate, plot_path, label in exp2_configs:
+        print("=" * 48)
+        print(f"  EXPERIMENT {tag} - mutation_rate={rate}")
+        print("=" * 48)
+
+        best_chr2, best_val2, val_log2 = run_ga(
+            population_size=20, generations=50,
+            crossover_rate=0.8, mutation_rate=rate,
+            tournament_size=3, seed=42
+        )
+        print_solution(best_chr2)
+        print(f"  Generations run : {len(val_log2)}")
+        print(f"  Value at gen 1  : {val_log2[0]}")
+        print(f"  Final best value: {best_val2}")
+        save_plot(val_log2, plot_path, label)
+        all_logs[label] = val_log2
+
+    # ==========================================================================
+    # COMBINED PLOT — all 4 curves in one figure
+    # ==========================================================================
+    save_combined_plot(all_logs)
+    print("\nDone! Check the plots/ directory for all output images.")
